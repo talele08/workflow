@@ -15,7 +15,7 @@ import java.util.List;
 
 @Repository
 @Slf4j
-public class WorflowRepository {
+public class WorKflowRepository {
 
     private WorkflowQueryBuilder queryBuilder;
 
@@ -25,7 +25,7 @@ public class WorflowRepository {
 
 
     @Autowired
-    public WorflowRepository(WorkflowQueryBuilder queryBuilder, JdbcTemplate jdbcTemplate, WorkflowRowMapper rowMapper) {
+    public WorKflowRepository(WorkflowQueryBuilder queryBuilder, JdbcTemplate jdbcTemplate, WorkflowRowMapper rowMapper) {
         this.queryBuilder = queryBuilder;
         this.jdbcTemplate = jdbcTemplate;
         this.rowMapper = rowMapper;
@@ -41,9 +41,37 @@ public class WorflowRepository {
         List<Object> preparedStmtList = new ArrayList<>();
         String query = queryBuilder.getTLSearchQuery(criteria, preparedStmtList);
         log.info("Query: "+query);
+        log.info("preparedStmtList: : "+preparedStmtList);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), rowMapper);
     }
 
+
+    /**
+     * Returns processInstances for the particular assignee
+     * @param criteria The search params object
+     * @return List of processInstance assigned to the user
+     */
+    public List<ProcessInstance> getProcessInstancesForAssignee(ProcessInstanceSearchCriteria criteria){
+        List<Object> preparedStmtList = new ArrayList<>();
+        String query = queryBuilder.getAssigneeSearchQuery(criteria, preparedStmtList);
+        log.info("Query: "+query);
+        log.info("preparedStmtList: : "+preparedStmtList);
+        return jdbcTemplate.query(query, preparedStmtList.toArray(), rowMapper);
+    }
+
+
+    /**
+     *
+     * @param criteria
+     * @return
+     */
+    public List<ProcessInstance> getProcessInstancesForStatus(ProcessInstanceSearchCriteria criteria){
+        List<Object> preparedStmtList = new ArrayList<>();
+        String query = queryBuilder.getStatusBasedProcessInstance(criteria, preparedStmtList);
+        log.info("Query: "+query);
+        log.info("preparedStmtList: : "+preparedStmtList);
+        return jdbcTemplate.query(query, preparedStmtList.toArray(), rowMapper);
+    }
 
 
 

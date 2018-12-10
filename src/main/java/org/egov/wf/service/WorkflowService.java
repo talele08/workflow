@@ -1,68 +1,100 @@
 package org.egov.wf.service;
 
-import org.egov.tracer.model.CustomException;
+import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.request.Role;
+import org.egov.wf.repository.WorKflowRepository;
+import org.egov.wf.util.WorkflowUtil;
+import org.egov.wf.validator.WorkflowValidator;
 import org.egov.wf.web.models.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 
 @Service
 public class WorkflowService {
 
+    private MDMSService mdmsService;
+
+    private TransitionService transitionService;
+
+    private EnrichmentService enrichmentService;
+
+    private WorkflowValidator workflowValidator;
+
+    private StatusUpdateService statusUpdateService;
+
+    private WorKflowRepository workflowRepository;
+
+    private WorkflowUtil util;
 
 
-
-
-
-
-
-
-
-
-    private List<ProcessStateAndAction> getProcessAndApplicables(ProcessInstanceRequest request, BusinessService businessService){
-        List<ProcessStateAndAction> processStateAndActions = new LinkedList<>();
-
-        for(ProcessInstance processInstance: request.getProcessInstances()){
-            ProcessStateAndAction processStateAndAction = new ProcessStateAndAction();
-
-            for(State state : businessService.getStates()){
-                if(state.getUuid().equalsIgnoreCase(processInstance.getStatus())){
-                    processStateAndAction.setCurrentState(state);
-                    break;
-                }
-            }
-
-            if(processStateAndAction.getCurrentState()==null)
-                throw new CustomException("INVALID STATUS","No state found in config for the businessId: "
-                        +processStateAndAction.getProcessInstance().getBusinessId() + " and status: "+
-                        processStateAndAction.getProcessInstance().getStatus());
-
-            for (Action action : processStateAndAction.getCurrentState().getActions()){
-                if(action.getUuid().equalsIgnoreCase(processInstance.getAction())){
-                    processStateAndAction.setAction(action);
-                    break;
-                }
-            }
-
-            if(processStateAndAction.getAction()==null)
-                throw new CustomException("INVALID ACTION","Action "+processStateAndAction.getProcessInstance().getAction()
-                        + " not found in config for the businessId: "
-                        +processStateAndAction.getProcessInstance().getBusinessId());
-
-            for(State state : businessService.getStates()){
-                if(state.getUuid().equalsIgnoreCase(processStateAndAction.getAction().getNextStateId())){
-                    processStateAndAction.setPostActionState(state);
-                    break;
-                }
-            }
-
-            processStateAndActions.add(processStateAndAction);
-
-        }
-        return processStateAndActions;
+    @Autowired
+    public WorkflowService(MDMSService mdmsService, TransitionService transitionService,
+                           EnrichmentService enrichmentService, WorkflowValidator workflowValidator,
+                           StatusUpdateService statusUpdateService, WorKflowRepository workflowRepository,
+                           WorkflowUtil util) {
+        this.mdmsService = mdmsService;
+        this.transitionService = transitionService;
+        this.enrichmentService = enrichmentService;
+        this.workflowValidator = workflowValidator;
+        this.statusUpdateService = statusUpdateService;
+        this.workflowRepository = workflowRepository;
+        this.util = util;
     }
+
+
+
+
+
+
+
+
+
+    public List<ProcessInstance> transition(ProcessInstanceRequest request){
+        RequestInfo requestInfo = request.getRequestInfo();
+        Object mdmsData = mdmsService.mdmsCall(request);
+        String businessServiceName = request.getProcessInstances().get(0).getBusinessService();
+        BusinessService businessService = util.getBusinessService(mdmsData,businessServiceName);
+        List<ProcessStateAndAction> processStateAndActions = transitionService.getProcessStateAndActions(request,businessService);
+        workflowValidator.validateRequst(requestInfo,processStateAndActions,mdmsData);
+        enrichmentService.enrichProcessRequest(requestInfo,processStateAndActions);
+        statusUpdateService.updateStatus(requestInfo,processStateAndActions);
+        return request.getProcessInstances();
+    }
+
+
+    public List<ProcessInstance> search(RequestInfo requestInfo,ProcessInstanceSearchCriteria criteria){
+        List<ProcessInstance> processInstances = new LinkedList<>();
+        Object mdmsData = mdmsService.mdmsCall(requestInfo,criteria.getTenantId());
+        if(criteria.isNull())
+            processInstances = getUserBasedProcessInstances(requestInfo,criteria,mdmsData);
+
+        return processInstances;
+    }
+
+
+    private List<ProcessInstance> getUserBasedProcessInstances(RequestInfo requestInfo,ProcessInstanceSearchCriteria criteria,Object mdmsData){
+        List<BusinessService> businessServices = util.getAllBusinessServices(mdmsData);
+        List<String> actionableStatuses = util.getActionableStatusesForRole(requestInfo,businessServices);
+        criteria.setAssignee(requestInfo.getUserInfo().getUuid());
+        criteria.setStatus(actionableStatuses);
+        List<ProcessInstance> processInstancesForAssignee = workflowRepository.getProcessInstancesForAssignee(criteria);
+        List<ProcessInstance> processInstancesForStatus = workflowRepository.getProcessInstancesForStatus(criteria);
+        Set<ProcessInstance> processInstanceSet = new LinkedHashSet<>(processInstancesForStatus);
+        processInstanceSet.addAll(processInstancesForAssignee);
+        List<ProcessInstance> totalProcessInstances = new ArrayList<>(processInstanceSet);
+        return totalProcessInstances;
+    }
+
+
+
+
+
+
+
+
 
 
 

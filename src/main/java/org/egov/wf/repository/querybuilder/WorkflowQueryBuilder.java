@@ -22,13 +22,26 @@ public class WorkflowQueryBuilder {
     private static final String INNER_JOIN_STRING = " INNER JOIN ";
     private static final String LEFT_OUTER_JOIN_STRING = " LEFT OUTER JOIN ";
 
+    private static final String baseQuery = "SELECT pi.*,doc.*,pi.id as wf_id," +
+            " pi.lastModifiedTime as wf_lastModifiedTime,pi.createdTime as wf_createdTime," +
+            " pi.createdBy as wf_createdBy,pi.lastModifiedBy as wf_lastModifiedBy," +
+            " doc.lastModifiedTime as doc_lastModifiedTime,doc.createdTime as doc_createdTime," +
+            " doc.createdBy as doc_createdBy,doc.lastModifiedBy as doc_lastModifiedBy," +
+            " doc.tenantid as doc_tenantid,doc.id as doc_id ";
+
+    private static final String docQuery = LEFT_OUTER_JOIN_STRING +
+            " eg_wf_document doc " +
+            " ON doc.processinstanceid = pi.id ";
+
     private static final String QUERY = "SELECT pi.*,doc.*,pi.id as wf_id," +
             "pi.lastModifiedTime as wf_lastModifiedTime,pi.createdTime as wf_createdTime," +
             "pi.createdBy as wf_createdBy,pi.lastModifiedBy as wf_lastModifiedBy," +
             "doc.lastModifiedTime as doc_lastModifiedTime,doc.createdTime as doc_createdTime," +
             "doc.createdBy as doc_createdBy,doc.lastModifiedBy as doc_lastModifiedBy," +
             "doc.tenantid as doc_tenantid,doc.id as doc_id " +
-            " FROM eg_wf_processinstance pi INNER JOIN eg_wf_document doc " +
+            " FROM eg_wf_processinstance pi " +
+            LEFT_OUTER_JOIN_STRING +
+            " eg_wf_document doc " +
             " ON doc.processinstanceid = pi.id WHERE ";
 
     private final String paginationWrapper = "SELECT * FROM " +
@@ -62,7 +75,10 @@ public class WorkflowQueryBuilder {
             preparedStmtList.add(criteria.getBusinessId());
         }
 
-        return builder.toString();
+        String query = addPaginationWrapper(builder.toString(),preparedStmtList,criteria);
+        query = addOrderByCreatedTime(query);
+
+        return query;
 
     }
 
@@ -130,7 +146,40 @@ public class WorkflowQueryBuilder {
      */
     private String addOrderByCreatedTime(String query){
         StringBuilder builder = new StringBuilder(query);
-        builder.append(" ORDER BY pi_createdBy DSC LIMIT 1");
+        builder.append(" ORDER BY result_offset.wf_lastModifiedTime DESC LIMIT 1");
+        return builder.toString();
+    }
+
+    /**
+     * Creates query to search processInstance assigned to user
+     * @return search query based on assignee
+     */
+    public String getAssigneeSearchQuery(ProcessInstanceSearchCriteria criteria, List<Object> preparedStmtList){
+        String query = QUERY +" assignee = ? "+
+                " AND pi.tenantid = ? " +
+                " AND pi.lastmodifiedTime IN  (SELECT max(lastmodifiedTime) from eg_wf_processinstance GROUP BY businessid)";
+        preparedStmtList.add(criteria.getAssignee());
+        preparedStmtList.add(criteria.getTenantId());
+        return query;
+    }
+
+
+    /**
+     * Creates query to search processInstance based on user roles
+     * @return search query based on assignee
+     */
+    public String getStatusBasedProcessInstance(ProcessInstanceSearchCriteria criteria, List<Object> preparedStmtList){
+        String query = QUERY +" pi.tenantid = ? " +
+                " AND pi.lastmodifiedTime IN  (SELECT max(lastmodifiedTime) from eg_wf_processinstance GROUP BY businessid)";
+
+        StringBuilder builder = new StringBuilder(query);
+        preparedStmtList.add(criteria.getTenantId());
+        List<String> statuses = criteria.getStatus();
+        if(!CollectionUtils.isEmpty(statuses)) {
+            builder.append(" and status IN (").append(createQuery(statuses)).append(")");
+            addToPreparedStatement(preparedStmtList,statuses);
+        }
+
         return builder.toString();
     }
 

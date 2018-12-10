@@ -7,10 +7,13 @@ import org.egov.wf.web.models.ProcessInstance;
 import org.egov.wf.web.models.ProcessInstanceRequest;
 import org.egov.wf.web.models.ProcessStateAndAction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
 
+
+@Service
 public class StatusUpdateService {
 
     private Producer producer;
@@ -33,7 +36,9 @@ public class StatusUpdateService {
     public void updateStatus(RequestInfo requestInfo,List<ProcessStateAndAction> processStateAndActions){
 
         for(ProcessStateAndAction processStateAndAction : processStateAndActions){
-            processStateAndAction.getProcessInstance().setStatus(processStateAndAction.getPostActionState().getState());
+            String prevStatus = processStateAndAction.getProcessInstance().getStatus();
+            processStateAndAction.getProcessInstance().setStatus(processStateAndAction.getPostActionState().getUuid());
+            processStateAndAction.getProcessInstance().setPreviousStatus(prevStatus);
         }
         List<ProcessInstance> processInstances = new LinkedList<>();
         processStateAndActions.forEach(processStateAndAction -> {

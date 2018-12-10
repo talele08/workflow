@@ -10,7 +10,6 @@ CREATE TABLE eg_wf_processinstance(
     assigner character varying(128),
     assignee character varying(128),
     sla bigint,
-    currentStatus character varying(128),
     previousStatus character varying(128),
     createdBy character varying(64),
     lastModifiedBy character varying(64),
@@ -35,4 +34,7 @@ CREATE TABLE eg_wf_Document(
 
     CONSTRAINT uk_eg_wf_Document PRIMARY KEY (id),
     CONSTRAINT fk_eg_wf_Document FOREIGN KEY (processinstanceid) REFERENCES eg_wf_processinstance (id)
+
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 );

@@ -15,13 +15,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
-* API tests for V1ApiController
+* API tests for WorkflowController
 */
 @Ignore
 @RunWith(SpringRunner.class)
-@WebMvcTest(V1ApiController.class)
+@WebMvcTest(WorkflowController.class)
 
-public class V1ApiControllerTest {
+public class WorkflowControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

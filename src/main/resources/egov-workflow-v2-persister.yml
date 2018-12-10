@@ -3,11 +3,11 @@ serviceMaps:
  mappings:
  - version: 1.0
    description: Persists workflow processInstance details in eg_workflow_v2  table
-   fromTopic: save-wf-processinstance
+   fromTopic: save-wf-transitions
    isTransaction: true
    queryMaps:
 
-       - query: INSERT INTO eg_ef_processinstance( id,tenantid,businessService,businessId,action,status,comment, assigner, assignee, sla, currentStatus, previousStatus, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+       - query: INSERT INTO eg_wf_processinstance( id,tenantid,businessService,businessId,action,status,comment, assigner, assignee, sla, previousStatus, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
          basePath: ProcessInstances.*
          jsonMaps:
           - jsonPath: $.ProcessInstances.*.id
@@ -29,8 +29,6 @@ serviceMaps:
           - jsonPath: $.ProcessInstances.*.assignee
 
           - jsonPath: $.ProcessInstances.*.sla
-
-          - jsonPath: $.ProcessInstances.*.currentStatus
 
           - jsonPath: $.ProcessInstances.*.previousStatus
 

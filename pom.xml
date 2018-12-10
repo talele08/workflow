@@ -57,8 +57,17 @@
             <artifactId>swagger-core</artifactId>
             <version>1.5.18</version>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
         <!-- Egov dependencies -->
-
+        <dependency>
+            <groupId>org.egov</groupId>
+            <artifactId>mdms-client</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.egov.services</groupId>
             <artifactId>services-common</artifactId>
@@ -73,6 +82,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.2.jre7</version>
         </dependency>
     <!-- Bean Validation API support -->
         <dependency>

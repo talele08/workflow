@@ -13,10 +13,13 @@ public class ProcessInstanceSearchCriteria {
     private String tenantId;
 
     @JsonProperty("status")
-    private String status;
+    private List<String> status;
 
     @JsonProperty("businessId")
     private String businessId;
+
+    @JsonProperty("assignee")
+    private String assignee;
 
     @JsonProperty("ids")
     private List<String> ids;
@@ -33,6 +36,14 @@ public class ProcessInstanceSearchCriteria {
 
     @JsonProperty("limit")
     private Integer limit;
+
+
+    public Boolean isNull(){
+        if(this.getBusinessId()==null && this.getIds()==null && this.getAssignee()==null &&
+                this.getStatus()==null)
+            return true;
+        else return false;
+    }
 
 
 

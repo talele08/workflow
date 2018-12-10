@@ -10,10 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class WorkflowRowMapper implements ResultSetExtractor<List<ProcessInstance>> {
@@ -27,7 +24,6 @@ public class WorkflowRowMapper implements ResultSetExtractor<List<ProcessInstanc
      * @throws DataAccessException
      */
     public List<ProcessInstance> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        List<ProcessInstance> processInstances = new LinkedList<>();
         Map<String,ProcessInstance> processInstanceMap = new HashMap<>();
 
         while (rs.next()){
@@ -63,13 +59,14 @@ public class WorkflowRowMapper implements ResultSetExtractor<List<ProcessInstanc
                         .assignee(rs.getString("assignee"))
                         .assigner(rs.getString("assigner"))
                         .sla(sla)
-                        .currentStatus(rs.getString("currentStatus"))
+                        .previousStatus(rs.getString("previousStatus"))
                         .auditDetails(auditdetails)
                         .build();
             }
             addChildrenToProperty(rs,processInstance);
+            processInstanceMap.put(id,processInstance);
         }
-        return processInstances;
+        return new ArrayList<>(processInstanceMap.values());
     }
 
 
@@ -83,29 +80,31 @@ public class WorkflowRowMapper implements ResultSetExtractor<List<ProcessInstanc
 
         String documentId = rs.getString("doc_id");
 
-        Long lastModifiedTime = rs.getLong("doc_lastModifiedTime");
-        if (rs.wasNull()) {
-            lastModifiedTime = null;
+        if(documentId!=null){
+
+            Long lastModifiedTime = rs.getLong("doc_lastModifiedTime");
+            if (rs.wasNull()) {
+                lastModifiedTime = null;
+            }
+
+            AuditDetails auditdetails = AuditDetails.builder()
+                    .createdBy(rs.getString("doc_createdBy"))
+                    .createdTime(rs.getLong("doc_createdTime"))
+                    .lastModifiedBy(rs.getString("doc_lastModifiedBy"))
+                    .lastModifiedTime(lastModifiedTime)
+                    .build();
+
+            Document document = Document.builder()
+                    .id(documentId)
+                    .tenantId(rs.getString("doc_tenantid"))
+                    .documentUid(rs.getString("documentUid"))
+                    .documentType(rs.getString("documentType"))
+                    .fileStoreId(rs.getString("fileStoreId"))
+                    .auditDetails(auditdetails)
+                    .build();
+
+            processInstance.addDocumentsItem(document);
         }
-
-
-        AuditDetails auditdetails = AuditDetails.builder()
-                .createdBy(rs.getString("doc_createdBy"))
-                .createdTime(rs.getLong("doc_createdTime"))
-                .lastModifiedBy(rs.getString("doc_lastModifiedBy"))
-                .lastModifiedTime(lastModifiedTime)
-                .build();
-
-        Document document = Document.builder()
-                .id(documentId)
-                .tenantId(rs.getString("doc_tenantid"))
-                .documentUid(rs.getString("documentUid"))
-                .documentType(rs.getString("documentType"))
-                .fileStoreId(rs.getString("fileStoreId"))
-                .auditDetails(auditdetails)
-                .build();
-
-        processInstance.addDocumentsItem(document);
     }
 
 
