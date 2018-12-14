@@ -3,6 +3,8 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/../TLv1.2/egov-services/core/egov-mdms-service" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../TLv1.2/egov-services/core/egov-persister" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../TLv1.2/egov-services/core/egov-user" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../TLv1.2/egov-services/rainmaker/egov-workflow-v2" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../git copy/egov-services/core/egov-mdms-service" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../pt plainsearch commit/egov-services/core/egov-mdms-service" charset="UTF-8" />

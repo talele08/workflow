@@ -64,6 +64,17 @@ public class WorkflowConfig {
     private String mdmsEndPoint;
 
 
+    //User
+    @Value("${egov.user.host}")
+    private String userHost;
+
+    @Value("${egov.user.search.path}")
+    private String userSearchEndpoint;
+
+
+
+
+
 
 
 

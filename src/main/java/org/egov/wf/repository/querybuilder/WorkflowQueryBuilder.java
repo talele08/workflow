@@ -57,7 +57,7 @@ public class WorkflowQueryBuilder {
      * @param preparedStmtList The List of object to store the search params
      * @return
      */
-    public String getTLSearchQuery(ProcessInstanceSearchCriteria criteria, List<Object> preparedStmtList) {
+    public String getProcessInstanceSearchQuery(ProcessInstanceSearchCriteria criteria, List<Object> preparedStmtList) {
 
         StringBuilder builder = new StringBuilder(QUERY);
 

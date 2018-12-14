@@ -47,9 +47,9 @@ public class WorkflowValidator {
     private void validateDocuments(List<ProcessStateAndAction> processStateAndActions){
         Map<String,String> errorMap = new HashMap<>();
         for (ProcessStateAndAction processStateAndAction : processStateAndActions){
-            if(processStateAndAction.getPostActionState().getDocUploadRequired()){
+            if(processStateAndAction.getResultantState().getDocUploadRequired()){
                 if(CollectionUtils.isEmpty(processStateAndAction.getProcessInstance().getDocuments()))
-                    errorMap.put("INVALID DOCUMENT","Documents cannot be null for status: "+processStateAndAction.getPostActionState().getState());
+                    errorMap.put("INVALID DOCUMENT","Documents cannot be null for status: "+processStateAndAction.getResultantState().getState());
             }
         }
         if(!errorMap.isEmpty())

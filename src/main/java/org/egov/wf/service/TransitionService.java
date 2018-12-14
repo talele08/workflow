@@ -1,20 +1,16 @@
 package org.egov.wf.service;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.egov.tracer.model.CustomException;
 import org.egov.wf.repository.WorKflowRepository;
 import org.egov.wf.web.models.*;
-import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import java.util.*;
-import static org.egov.wf.util.WorkflowConstants.*;
 
 @Slf4j
 @Service
@@ -25,12 +21,19 @@ public class TransitionService {
 
     private WorKflowRepository repository;
 
+    private BusinessUtilService businessUtilService;
+
 
     @Autowired
-    public TransitionService(ObjectMapper mapper, WorKflowRepository repository) {
+    public TransitionService(ObjectMapper mapper, WorKflowRepository repository, BusinessUtilService businessUtilService) {
         this.mapper = mapper;
         this.repository = repository;
+        this.businessUtilService = businessUtilService;
     }
+
+
+
+
 
 
     /**
@@ -77,7 +80,7 @@ public class TransitionService {
 
             for(State state : businessService.getStates()){
                 if(state.getUuid().equalsIgnoreCase(processStateAndAction.getAction().getNextStateId())){
-                    processStateAndAction.setPostActionState(state);
+                    processStateAndAction.setResultantState(state);
                     break;
                 }
             }
@@ -88,6 +91,27 @@ public class TransitionService {
         return processStateAndActions;
     }
 
+
+
+
+    public List<ProcessStateAndAction> getProcessStateAndActions(ProcessInstanceRequest request){
+        List<ProcessStateAndAction> processStateAndActions = new LinkedList<>();
+        getStatus(request.getProcessInstances());
+        for(ProcessInstance processInstance: request.getProcessInstances()) {
+
+            BusinessService businessService = businessUtilService.getCurrentStateAndAction(processInstance);
+            ProcessStateAndAction processStateAndAction = new ProcessStateAndAction();
+            processStateAndAction.setProcessInstance(processInstance);
+            processStateAndAction.setCurrentState(businessService.getStates().get(0));
+            if(!CollectionUtils.isEmpty(businessService.getStates().get(0).getActions()))
+                processStateAndAction.setAction(businessService.getStates().get(0).getActions().get(0));
+
+            BusinessService businessServiceForNextState = businessUtilService.getResultantState(processStateAndAction.getAction());
+            processStateAndAction.setResultantState(businessServiceForNextState.getStates().get(0));
+            processStateAndActions.add(processStateAndAction);
+        }
+        return processStateAndActions;
+    }
 
 
 

@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Import;
 import java.util.TimeZone;
 
 @SpringBootApplication
-@ComponentScan(basePackages = { "org.egov.wf", "org.egov.wf.web.controllers" , "org.egov.wf.config"})
 @Import({ TracerConfiguration.class })
 public class Main {
 

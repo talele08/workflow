@@ -11,6 +11,6 @@ public class ProcessStateAndAction {
 
     private State currentState = null;
 
-    private State postActionState = null;
+    private State resultantState = null;
 
 }

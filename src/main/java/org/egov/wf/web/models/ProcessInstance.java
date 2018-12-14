@@ -7,16 +7,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.*;
+import org.egov.common.contract.request.User;
 import org.egov.wf.web.models.AuditDetails;
 import org.egov.wf.web.models.Document;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.Builder;
 
 /**
  * A Object holds the basic data for a Trade License
@@ -30,6 +28,7 @@ import lombok.Builder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(of = {"id"})
 public class ProcessInstance   {
         @JsonProperty("id")
         private String id = null;
@@ -61,10 +60,10 @@ public class ProcessInstance   {
         private List<Document> documents = null;
 
         @JsonProperty("assigner")
-        private String assigner = null;
+        private User assigner = null;
 
         @JsonProperty("assignee")
-        private String assignee = null;
+        private User assignee = null;
 
         @JsonProperty("nextActions")
         @Valid

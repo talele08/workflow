@@ -43,7 +43,7 @@ serviceMaps:
 
 
 
-       - query:  INSERT INTO eg_wf_document( id, tenantid, active, documenttype,documentUid, processinstanceid, filestoreid, createdby, lastmodifiedby, createdtime, lastmodifiedtime) SELECT * FROM ( VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?::BIGINT, ?::BIGINT)) AS t WHERE (NOT (SELECT coalesce(field, ' ') = ' ' FROM (VALUES (?))sub(field)));
+       - query: INSERT INTO eg_wf_document( id, tenantid, active, documenttype,documentUid, processinstanceid, filestoreid, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
          basePath: ProcessInstances.*.documents.*
          jsonMaps:
           - jsonPath: $.ProcessInstances.documents.*.id
@@ -67,5 +67,3 @@ serviceMaps:
           - jsonPath: $.ProcessInstances.documents.*.auditDetails.createdTime
 
           - jsonPath: $.ProcessInstances.documents.*.auditDetails.lastModifiedTime
-
-          - jsonPath: $.ProcessInstances.documents.*.id

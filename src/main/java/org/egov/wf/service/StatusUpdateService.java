@@ -37,7 +37,7 @@ public class StatusUpdateService {
 
         for(ProcessStateAndAction processStateAndAction : processStateAndActions){
             String prevStatus = processStateAndAction.getProcessInstance().getStatus();
-            processStateAndAction.getProcessInstance().setStatus(processStateAndAction.getPostActionState().getUuid());
+            processStateAndAction.getProcessInstance().setStatus(processStateAndAction.getResultantState().getUuid());
             processStateAndAction.getProcessInstance().setPreviousStatus(prevStatus);
         }
         List<ProcessInstance> processInstances = new LinkedList<>();

@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="egov-mdms-service-test" />
         <module name="egov-persister" />
+        <module name="egov-user" />
         <module name="egov-workflow-v2" />
       </profile>
     </annotationProcessing>

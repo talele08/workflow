@@ -4,9 +4,10 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/../git copy/egov-services/core/egov-mdms-service/pom.xml" />
         <option value="$PROJECT_DIR$/../TLv1.2/egov-services/core/egov-persister/pom.xml" />
+        <option value="$PROJECT_DIR$/../TLv1.2/egov-services/rainmaker/egov-workflow-v2/pom.xml" />
+        <option value="$PROJECT_DIR$/../TLv1.2/egov-services/core/egov-user/pom.xml" />
       </list>
     </option>
   </component>
