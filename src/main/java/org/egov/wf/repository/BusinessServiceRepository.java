@@ -36,12 +36,12 @@ public class BusinessServiceRepository {
      * @param processInstance The ProcessInstance whose current state and action has to be fetched
      * @return List of BusinessService object containing the current state and action
      */
-    public List<BusinessService> getCurrentStateAndAction(ProcessInstance processInstance){
+    public List<BusinessService> getCurrentStateAndAction(ProcessInstance processInstance,Boolean isTransition){
         List<Object> preparedStmtList = new ArrayList<>();
-        BusinessServiceSearchCriteria criteria = getCriteria(processInstance);
+        BusinessServiceSearchCriteria criteria = getCriteria(processInstance,isTransition);
         String query = queryBuilder.getStateAndActionSearchQuery(criteria, preparedStmtList);
-        log.info("Query: "+query);
-        log.info("preparedStmtList: : "+preparedStmtList);
+        log.info("Query CurrentStateAndAction: "+query);
+        log.info("preparedStmtList : "+preparedStmtList);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), rowMapper);
     }
 
@@ -55,7 +55,7 @@ public class BusinessServiceRepository {
         List<Object> preparedStmtList = new ArrayList<>();
         BusinessServiceSearchCriteria criteria = getCriteria(action);
         String query = queryBuilder.getResultantState(criteria, preparedStmtList);
-        log.info("Query: "+query);
+        log.info("Query ResultantState : "+query);
         log.info("preparedStmtList: : "+preparedStmtList);
         return jdbcTemplate.query(query, preparedStmtList.toArray(), rowMapper);
     }
@@ -66,11 +66,12 @@ public class BusinessServiceRepository {
      * @param processInstance The processInstance Object whose state and action is to be searched
      * @return BusinessSearchCriteria for the processInstance
      */
-    private BusinessServiceSearchCriteria getCriteria(ProcessInstance processInstance){
+    private BusinessServiceSearchCriteria getCriteria(ProcessInstance processInstance,Boolean isTransition){
         BusinessServiceSearchCriteria criteria = new BusinessServiceSearchCriteria();
         criteria.setTenantId(processInstance.getTenantId());
         criteria.setBusinessService(processInstance.getBusinessService());
-        criteria.setAction(processInstance.getAction());
+        if(isTransition)
+            criteria.setAction(processInstance.getAction());
         criteria.setStateUuid(processInstance.getStatus());
         return criteria;
     }
@@ -82,8 +83,18 @@ public class BusinessServiceRepository {
      */
     private BusinessServiceSearchCriteria getCriteria(Action action){
         BusinessServiceSearchCriteria criteria = new BusinessServiceSearchCriteria();
-        criteria.setStateUuid(action.getNextStateId());
+        criteria.setStateUuid(action.getNextState());
         return criteria;
+    }
+
+
+
+    public List<BusinessService> getBusinessServices(BusinessServiceSearchCriteria criteria){
+        List<Object> preparedStmtList = new ArrayList<>();
+        String query = queryBuilder.getBusinessServices(criteria, preparedStmtList);
+        log.info("Query BusinessServices: "+query);
+        log.info("preparedStmtList: : "+preparedStmtList);
+        return jdbcTemplate.query(query, preparedStmtList.toArray(), rowMapper);
     }
 
 

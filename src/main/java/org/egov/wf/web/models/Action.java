@@ -34,14 +34,14 @@ public class Action   {
         @JsonProperty("tenantId")
         private String tenantId = null;
 
-        @JsonProperty("stateId")
-        private String stateId = null;
+        @JsonProperty("state")
+        private String state = null;
 
         @JsonProperty("action")
         private String action = null;
 
-        @JsonProperty("nextStateId")
-        private String nextStateId = null;
+        @JsonProperty("nextState")
+        private String nextState = null;
 
         @JsonProperty("roles")
         @Valid

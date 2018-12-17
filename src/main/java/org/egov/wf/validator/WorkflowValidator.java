@@ -3,8 +3,10 @@ package org.egov.wf.validator;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.request.Role;
 import org.egov.tracer.model.CustomException;
+import org.egov.wf.util.BusinessUtil;
 import org.egov.wf.util.WorkflowUtil;
 import org.egov.wf.web.models.Action;
+import org.egov.wf.web.models.BusinessService;
 import org.egov.wf.web.models.ProcessStateAndAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,23 +22,28 @@ public class WorkflowValidator {
 
     private WorkflowUtil util;
 
+    private BusinessUtil businessUtil;
+
 
     @Autowired
-    public WorkflowValidator(WorkflowUtil util) {
+    public WorkflowValidator(WorkflowUtil util, BusinessUtil businessUtil) {
         this.util = util;
+        this.businessUtil = businessUtil;
     }
+
 
 
     /**
      * Validates the request
      * @param requestInfo RequestInfo of the request
      * @param processStateAndActions The processStateAndActions containing processInstances to be validated
-     * @param mdmsData The mdms data from MDMS search
      */
-    public void validateRequst(RequestInfo requestInfo,List<ProcessStateAndAction> processStateAndActions,Object mdmsData){
-        validateAction(requestInfo,processStateAndActions,mdmsData);
+    public void validateRequest(RequestInfo requestInfo, List<ProcessStateAndAction> processStateAndActions){
+        String tenantId = processStateAndActions.get(0).getProcessInstance().getTenantId();
+        String businessServiceCode = processStateAndActions.get(0).getProcessInstance().getBusinessService();
+        BusinessService businessService = businessUtil.getBusinessService(tenantId,businessServiceCode);
+        validateAction(requestInfo,processStateAndActions,businessService);
         validateDocuments(processStateAndActions);
-
     }
 
 
@@ -73,7 +80,7 @@ public class WorkflowValidator {
                         processStateAndAction.getCurrentState().getBusinessServiceId());
 
             Boolean isRoleAvailable = util.isRoleAvailable(roles,action.getRoles());
-            Boolean isStateChanging = (action.getStateId() == action.getNextStateId()) ? false : true;
+            Boolean isStateChanging = (action.getState() == action.getNextState()) ? false : true;
 
             if(action!=null && isStateChanging && !isRoleAvailable)
                 errorMap.put("INVALID ROLE","User is not authorized to perform action");

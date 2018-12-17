@@ -53,7 +53,7 @@ public class EnrichmentService {
                     document.setId(UUID.randomUUID().toString());
                 });
             }
-            setNextActions(requestInfo,processStateAndActions);
+            setNextActions(requestInfo,processStateAndActions,true);
         });
         enrichUsers(processStateAndActions);
     }
@@ -67,11 +67,14 @@ public class EnrichmentService {
      * @param requestInfo The RequestInfo of the request
      * @param processStateAndActions
      */
-    private void setNextActions(RequestInfo requestInfo,List<ProcessStateAndAction> processStateAndActions){
+    private void setNextActions(RequestInfo requestInfo,List<ProcessStateAndAction> processStateAndActions,Boolean isTransition){
         List<Role> roles = requestInfo.getUserInfo().getRoles();
 
         processStateAndActions.forEach(processStateAndAction -> {
-            State state = processStateAndAction.getResultantState();
+            State state;
+            if(isTransition)
+             state = processStateAndAction.getResultantState();
+            else state = processStateAndAction.getCurrentState();
             List<String> nextAction = new LinkedList<>();
             state.getActions().forEach(action -> {
                 if(util.isRoleAvailable(roles,action.getRoles()))
@@ -144,8 +147,8 @@ public class EnrichmentService {
 
     public void enrichNextActionForSearch(RequestInfo requestInfo,List<ProcessInstance> processInstances){
         List<ProcessStateAndAction> processStateAndActions =
-                transitionService.getProcessStateAndActions(new ProcessInstanceRequest(requestInfo,processInstances));
-        setNextActions(requestInfo,processStateAndActions);
+                transitionService.getProcessStateAndActions(new ProcessInstanceRequest(requestInfo,processInstances),false);
+        setNextActions(requestInfo,processStateAndActions,false);
     }
 
 
@@ -158,20 +161,36 @@ public class EnrichmentService {
         List<BusinessService> businessServices = request.getBusinessServices();
         AuditDetails auditDetails = util.getAuditDetails(requestInfo.getUserInfo().getUuid(),true);
         businessServices.forEach(businessService -> {
-            businessService.setUuid(UUID.randomUUID().toString());
+            Map<String,String> statusToUuidMap = getStatusToUuidMap(businessService);
+    //        businessService.setUuid(UUID.randomUUID().toString());
             businessService.setAuditDetails(auditDetails);
             businessService.getStates().forEach(state -> {
                 state.setAuditDetails(auditDetails);
-                state.setUuid(UUID.randomUUID().toString());
-                state.getActions().forEach(action -> {
-                    action.setAuditDetails(auditDetails);
-                    action.setUuid(UUID.randomUUID().toString());
-                });
+      //          state.setUuid(UUID.randomUUID().toString());
+                if(!CollectionUtils.isEmpty(state.getActions()))
+                    state.getActions().forEach(action -> {
+                        action.setAuditDetails(auditDetails);
+        //                action.setUuid(UUID.randomUUID().toString());
+                        action.setNextState(statusToUuidMap.get(action.getNextState()));
+                    });
             });
         });
 
     }
 
+
+    /**
+     * Prepares a map of status to uuid for states
+     * @param businessService The BusinessService object to be enriched
+     * @return Map of status to uuid
+     */
+    private Map<String,String> getStatusToUuidMap(BusinessService businessService){
+        Map<String,String> statusToUuidMap = new HashMap<>();
+        businessService.getStates().forEach(state -> {
+            statusToUuidMap.put(state.getState(),state.getUuid());
+        });
+        return statusToUuidMap;
+    }
 
 
 }

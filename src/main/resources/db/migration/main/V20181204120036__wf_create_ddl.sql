@@ -73,6 +73,9 @@ CREATE TABLE eg_wf_state_v2
 
   CONSTRAINT uk_eg_wf_state PRIMARY KEY (uuid),
   CONSTRAINT fk_eg_wf_state FOREIGN KEY (tenantid,businessServiceid) REFERENCES eg_wf_businessservice_v2 (tenantid,businessService)
+
+  ON UPDATE CASCADE
+  ON DELETE CASCADE
 );
 
 
@@ -92,6 +95,9 @@ CREATE TABLE eg_wf_action_v2
 
    CONSTRAINT uk_eg_wf_action PRIMARY KEY (uuid),
    CONSTRAINT fk_eg_wf_action FOREIGN KEY (stateid) REFERENCES eg_wf_state_v2 (uuid)
+
+   ON UPDATE CASCADE
+   ON DELETE CASCADE
 )
 
 

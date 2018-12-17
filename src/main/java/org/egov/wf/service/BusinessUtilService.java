@@ -28,8 +28,8 @@ public class BusinessUtilService {
      * @param processInstance The ProcessInstance whose current state and action have to be fetched
      * @return BusinessService containing the current state and action
      */
-    public BusinessService getCurrentStateAndAction(ProcessInstance processInstance){
-        List<BusinessService> businessServices = businessServiceRepository.getCurrentStateAndAction(processInstance);
+    public BusinessService getCurrentStateAndAction(ProcessInstance processInstance,Boolean isTransition){
+        List<BusinessService> businessServices = businessServiceRepository.getCurrentStateAndAction(processInstance,isTransition);
         if(CollectionUtils.isEmpty(businessServices))
             throw new CustomException("INVALID PROCESSINSTANCE","No businessService found for the current state of processInstance");
         if(businessServices.size()!=1)
@@ -38,8 +38,10 @@ public class BusinessUtilService {
             throw new CustomException("INVALID PROCESSINSTANCE","No current State found for the processInstance");
         if(businessServices.get(0).getStates().size()!=1)
             throw new CustomException("INVALID PROCESSINSTANCE","Multiple current States found for the processInstance");
-        if(businessServices.get(0).getStates().get(0).getActions().size()!=1)
-            throw new CustomException("INVALID PROCESSINSTANCE","Multiple Actions found for the processInstance");
+        if(isTransition){
+            if(businessServices.get(0).getStates().get(0).getActions().size()!=1)
+                throw new CustomException("INVALID PROCESSINSTANCE","Multiple Actions found for the processInstance");
+        }
         return businessServices.get(0);
     }
 

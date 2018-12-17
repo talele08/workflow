@@ -10,6 +10,7 @@ import org.egov.wf.web.models.*;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
@@ -50,9 +51,9 @@ public class WorkflowUtil {
      */
     public Boolean isRoleAvailable(List<Role> userRoles, List<String> actionRoles){
         Boolean flag = false;
-        List<String> allowedRoles = Arrays.asList(actionRoles.get(0).split(","));
+ //       List<String> allowedRoles = Arrays.asList(actionRoles.get(0).split(","));
         for(Role role : userRoles) {
-            if (allowedRoles.contains(role.getCode())) {
+            if (actionRoles.contains(role.getCode())) {
                 flag = true;
                 break;
             }
@@ -75,6 +76,19 @@ public class WorkflowUtil {
         }
         return roles;
     }
+
+
+    public List<String> rolesAllowedInService(BusinessService businessService){
+        Set<String> roles=  new HashSet<>();
+        businessService.getStates().forEach(state -> {
+            state.getActions().forEach(action -> {
+               roles.addAll(action.getRoles());
+            });
+        });
+        return new LinkedList<>(roles);
+    }
+
+
 
 
 
@@ -149,9 +163,11 @@ public class WorkflowUtil {
         businessServices.forEach(businessService -> {
             for(State state : businessService.getStates()){
                 HashSet<String> roles = new HashSet<>();
-                state.getActions().forEach(action -> {
-                    roles.addAll(Arrays.asList(action.getRoles().get(0).split(",")));
-                });
+                if(!CollectionUtils.isEmpty(state.getActions())){
+                    state.getActions().forEach(action -> {
+                        roles.addAll(action.getRoles());
+                    });
+                }
                 stateToRolesMap.put(state.getUuid(),roles);
             }
         });
