@@ -76,6 +76,7 @@ public class WorkflowService {
             processInstances = getUserBasedProcessInstances(requestInfo,criteria,mdmsData);
         List<ProcessInstance> result = new LinkedList<>(processInstances);
         enrichmentService.enrichUsersFromSearch(result);
+        enrichmentService.enrichNextActionForSearch(requestInfo,result);
         return result;
     }
 
@@ -87,15 +88,14 @@ public class WorkflowService {
      * @param mdmsData The data fetched from MDMS search
      * @return List of processInstances based on search criteria
      */
-    private Set<ProcessInstance> getUserBasedProcessInstances(RequestInfo requestInfo,ProcessInstanceSearchCriteria criteria,Object mdmsData){
+    private Set<ProcessInstance> getUserBasedProcessInstances(RequestInfo requestInfo,
+                                       ProcessInstanceSearchCriteria criteria,Object mdmsData){
         List<BusinessService> businessServices = util.getAllBusinessServices(mdmsData);
         List<String> actionableStatuses = util.getActionableStatusesForRole(requestInfo,businessServices);
         criteria.setAssignee(requestInfo.getUserInfo().getUuid());
         criteria.setStatus(actionableStatuses);
         List<ProcessInstance> processInstancesForAssignee = workflowRepository.getProcessInstancesForAssignee(criteria);
         List<ProcessInstance> processInstancesForStatus = workflowRepository.getProcessInstancesForStatus(criteria);
-        List<ProcessInstance> totalProcessInstances = new LinkedList<>(processInstancesForAssignee);
-        totalProcessInstances.addAll(processInstancesForStatus);
         Set<ProcessInstance> processInstanceSet = new LinkedHashSet<>(processInstancesForStatus);
         processInstanceSet.addAll(processInstancesForAssignee);
         return processInstanceSet;

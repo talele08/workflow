@@ -29,7 +29,6 @@ public class WorkflowUtil {
 
     /**
      * Method to return auditDetails for create/update flows
-     *
      * @param by The uuid of the user sending the request
      * @param isCreate Flag to determine if the call is for create or update
      * @return AuditDetails The auditdetails of the request

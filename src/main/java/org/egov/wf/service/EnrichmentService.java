@@ -22,10 +22,13 @@ public class EnrichmentService {
 
     private UserService userService;
 
+    private TransitionService transitionService;
+
     @Autowired
-    public EnrichmentService(WorkflowUtil util, UserService userService) {
+    public EnrichmentService(WorkflowUtil util, UserService userService,TransitionService transitionService) {
         this.util = util;
         this.userService = userService;
+        this.transitionService = transitionService;
     }
 
 
@@ -60,7 +63,7 @@ public class EnrichmentService {
 
 
     /**
-     * Enriches the processInstance with next possible action depenending on current state
+     * Enriches the processInstance with next possible action depending on current state
      * @param requestInfo The RequestInfo of the request
      * @param processStateAndActions
      */
@@ -137,6 +140,38 @@ public class EnrichmentService {
         if(!errorMap.isEmpty())
             throw new CustomException(errorMap);
     }
+
+
+    public void enrichNextActionForSearch(RequestInfo requestInfo,List<ProcessInstance> processInstances){
+        List<ProcessStateAndAction> processStateAndActions =
+                transitionService.getProcessStateAndActions(new ProcessInstanceRequest(requestInfo,processInstances));
+        setNextActions(requestInfo,processStateAndActions);
+    }
+
+
+    /**
+     * Enriches the incoming list of businessServices
+     * @param request The BusinessService request to be enriched
+     */
+    public void enrichBusinessService(BusinessServiceRequest request){
+        RequestInfo requestInfo = request.getRequestInfo();
+        List<BusinessService> businessServices = request.getBusinessServices();
+        AuditDetails auditDetails = util.getAuditDetails(requestInfo.getUserInfo().getUuid(),true);
+        businessServices.forEach(businessService -> {
+            businessService.setUuid(UUID.randomUUID().toString());
+            businessService.setAuditDetails(auditDetails);
+            businessService.getStates().forEach(state -> {
+                state.setAuditDetails(auditDetails);
+                state.setUuid(UUID.randomUUID().toString());
+                state.getActions().forEach(action -> {
+                    action.setAuditDetails(auditDetails);
+                    action.setUuid(UUID.randomUUID().toString());
+                });
+            });
+        });
+
+    }
+
 
 
 }

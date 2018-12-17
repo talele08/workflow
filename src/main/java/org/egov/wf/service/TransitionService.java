@@ -32,10 +32,6 @@ public class TransitionService {
     }
 
 
-
-
-
-
     /**
      * Creates list of ProcessStateAndAction from the list of the processInstances
      * @param request The incoming ProcessInstanceRequest

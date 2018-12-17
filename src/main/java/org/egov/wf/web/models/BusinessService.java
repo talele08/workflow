@@ -41,6 +41,9 @@ public class BusinessService   {
         @JsonProperty("businessService")
         private String businessService = null;
 
+        @JsonProperty("business")
+        private String business = null;
+
         @JsonProperty("getUri")
         private String getUri = null;
 

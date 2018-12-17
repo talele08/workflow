@@ -6,10 +6,11 @@ import org.egov.wf.web.models.Action;
 import org.egov.wf.web.models.BusinessService;
 import org.egov.wf.web.models.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-
 import java.util.List;
 
+@Service
 public class BusinessUtilService {
 
     private BusinessServiceRepository businessServiceRepository;
@@ -18,6 +19,7 @@ public class BusinessUtilService {
     public BusinessUtilService(BusinessServiceRepository businessServiceRepository) {
         this.businessServiceRepository = businessServiceRepository;
     }
+
 
 
 

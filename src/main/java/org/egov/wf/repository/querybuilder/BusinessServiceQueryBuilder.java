@@ -1,10 +1,10 @@
 package org.egov.wf.repository.querybuilder;
 
 import org.egov.wf.web.models.BusinessServiceSearchCriteria;
-
-
+import org.springframework.stereotype.Component;
 import java.util.List;
 
+@Component
 public class BusinessServiceQueryBuilder {
 
 
@@ -14,7 +14,7 @@ public class BusinessServiceQueryBuilder {
      private static final String LEFT_OUTER_JOIN = " LEFT OUTER JOIN ";
 
      private static final String BASE_QUERY = "SELECT bs.*,st.*,ac.* FROM eg_wf_businessService_v2 bs " +
-           INNER_JOIN + " eg_wf_state_v2 st ON st.businessServiceId = bs.businessService " +
+            INNER_JOIN + " eg_wf_state_v2 st ON st.businessServiceId = bs.businessService " +
             LEFT_OUTER_JOIN  + " eg_wf_action_v2 ac ON ac.stateId = st.uuid WHERE ";
 
 
