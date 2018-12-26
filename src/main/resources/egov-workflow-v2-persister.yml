@@ -7,7 +7,7 @@ serviceMaps:
    isTransaction: true
    queryMaps:
 
-       - query: INSERT INTO eg_wf_processinstance_v2( id,tenantid,businessService,businessId,action,status,comment, assigner, assignee, sla, previousStatus, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+       - query: INSERT INTO eg_wf_processinstance_v2( id,tenantid,businessService,businessIds,action,status,comment, assigner, assignee, sla, previousStatus, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
          basePath: ProcessInstances.*
          jsonMaps:
           - jsonPath: $.ProcessInstances.*.id
@@ -16,11 +16,11 @@ serviceMaps:
 
           - jsonPath: $.ProcessInstances.*.businessService
 
-          - jsonPath: $.ProcessInstances.*.businessId
+          - jsonPath: $.ProcessInstances.*.businessIds
 
           - jsonPath: $.ProcessInstances.*.action
 
-          - jsonPath: $.ProcessInstances.*.state.uuid
+          - jsonPath: $.ProcessInstances.*.status.uuid
 
           - jsonPath: $.ProcessInstances.*.comment
 
