@@ -63,76 +63,20 @@ public class WorkflowUtil {
 
     /**
      *  Fetches roles of all the actions in the businessService
-     * @param mdmsData The mdms data from MDMS search
      * @return All roles in the business service
      */
-    public List<String> rolesAllowedInService(Object mdmsData,String jsonPath){
-        List<String> roles;
-        try {
-          roles = JsonPath.read(mdmsData,jsonPath);
-        }
-        catch (Exception e){
-            throw new CustomException("PARSING ERROR","Failed to fetch allowed roles of the service");
-        }
+    public List<String> rolesAllowedInService(BusinessService businessService){
+        List<String> roles = new LinkedList<>();
+        businessService.getStates().forEach(state -> {
+            if(!CollectionUtils.isEmpty(state.getActions())){
+                state.getActions().forEach(action -> {
+                    roles.addAll(action.getRoles());
+                });
+            }
+        });
         return roles;
     }
 
-
-    public List<String> rolesAllowedInService(BusinessService businessService){
-        Set<String> roles=  new HashSet<>();
-        businessService.getStates().forEach(state -> {
-            state.getActions().forEach(action -> {
-               roles.addAll(action.getRoles());
-            });
-        });
-        return new LinkedList<>(roles);
-    }
-
-
-
-
-
-    /**
-     * Fetches the appropriate BusinessService object from MDMS data
-     * @param mdmsData MDMS data from MDMS search
-     * @param businessServiceName The businessService of the request
-     * @return BusinessService object for the given business service
-     */
-    public BusinessService getBusinessService(Object mdmsData,String businessServiceName){
-        BusinessService businessService;
-        try {
-            String jsonpath = WF_JSONPATH_CODE.replace("{name}",businessServiceName);
-            List<Object> objects  = JsonPath.read(mdmsData,jsonpath);
-            String jsonString = new JSONArray(objects).toString();
-            List<BusinessService> businessServices =
-                    mapper.readValue(jsonString, new TypeReference<List<BusinessService>>(){});
-            businessService = businessServices.get(0);
-        }
-        catch (Exception e){
-            throw new CustomException("BUSINESSSERVICE ERROR","Failed to get applicable Business Service object");
-        }
-        return businessService;
-    }
-
-
-    /**
-     * Fetches all BusinessService object from MDMS data
-     * @param mdmsData MDMS data from MDMS search
-     * @return BusinessService object for the given business service
-     */
-    public List<BusinessService> getAllBusinessServices(Object mdmsData){
-        List<BusinessService> businessServices;
-        try {
-            List<Object> objects  = JsonPath.read(mdmsData,ALL_WF_JSONPATH_CODE);
-            String jsonString = new JSONArray(objects).toString();
-            businessServices =
-                    mapper.readValue(jsonString, new TypeReference<List<BusinessService>>(){});
-        }
-        catch (Exception e){
-            throw new CustomException("BUSINESSSERVICE ERROR","Failed to get applicable Business Service object");
-        }
-        return businessServices;
-    }
 
 
     /**

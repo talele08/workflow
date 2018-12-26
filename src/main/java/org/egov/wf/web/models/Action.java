@@ -26,7 +26,7 @@ import javax.validation.constraints.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@EqualsAndHashCode(of = {"uuid"})
+@EqualsAndHashCode(of = {"tenantId","currentState","action"})
 public class Action   {
         @JsonProperty("uuid")
         private String uuid = null;
@@ -34,8 +34,8 @@ public class Action   {
         @JsonProperty("tenantId")
         private String tenantId = null;
 
-        @JsonProperty("state")
-        private String state = null;
+        @JsonProperty("currentState")
+        private String currentState = null;
 
         @JsonProperty("action")
         private String action = null;

@@ -49,7 +49,7 @@ public class WorKflowRepository {
     /**
      * Returns processInstances for the particular assignee
      * @param criteria The search params object
-     * @return List of processInstance assigned to the user
+     * @return List of processInstanceFromRequest assigned to the user
      */
     public List<ProcessInstance> getProcessInstancesForAssignee(ProcessInstanceSearchCriteria criteria){
         List<Object> preparedStmtList = new ArrayList<>();

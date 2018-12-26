@@ -35,6 +35,7 @@ public class BusinessServiceRowMapper implements ResultSetExtractor<List<Busines
                         .postUri(rs.getString("posturi"))
                         .businessService(rs.getString("businessService"))
                         .business(rs.getString("business"))
+                        .uuid(uuid)
                         .auditDetails(auditdetails)
                         .build();
                 businessServiceMap.put(uuid,businessService);
@@ -72,10 +73,17 @@ public class BusinessServiceRowMapper implements ResultSetExtractor<List<Busines
                     .lastModifiedTime(lastModifiedTime)
                     .build();
 
+            Long sla = rs.getLong("sla");
+            if (rs.wasNull()) {
+                sla = null;
+            }
+
             state = State.builder()
                 .tenantId(rs.getString("st_tenantId"))
                 .uuid(stateUuid)
                 .state(rs.getString("state"))
+                .sla(sla)
+                .applicationStatus(rs.getString("applicationStatus"))
                 .isStartState(rs.getBoolean("isStartState"))
                 .isTerminateState(rs.getBoolean("isTerminateState"))
                 .docUploadRequired(rs.getBoolean("docuploadrequired"))
@@ -107,7 +115,7 @@ public class BusinessServiceRowMapper implements ResultSetExtractor<List<Busines
                     .action(rs.getString("action"))
                     .nextState(rs.getString("nextState"))
                     .uuid(actionUuid)
-                    .state(rs.getString("state"))
+                    .currentState(rs.getString("currentState"))
                     .roles(Arrays.asList(rs.getString("roles").split(",")))
                     .auditDetails(actionAuditdetails)
                     .build();
